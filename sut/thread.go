@@ -3,17 +3,17 @@ package sut
 import (
 	"bytes"
 	"context"
-	"github.com/v2pro/koala/envarg"
-	"github.com/v2pro/koala/recording"
-	"github.com/v2pro/koala/replaying"
-	"github.com/v2pro/koala/trace"
-	"github.com/v2pro/plz/countlog"
 	"net"
 	"os"
 	"strings"
 	"sync"
 	"time"
 	"unsafe"
+
+	"github.com/v2pro/koala/envarg"
+	"github.com/v2pro/koala/recording"
+	"github.com/v2pro/koala/replaying"
+	"github.com/v2pro/plz/countlog"
 )
 
 // InboundRequestPrefix is used to recognize php-fpm FCGI_BEGIN_REQUEST packet.
@@ -318,20 +318,11 @@ func (thread *Thread) OnOpeningFile(fileName string, flags int) string {
 		return ""
 	}
 	originalFileName := fileName
-	shouldTrace := thread.replayingSession.ShouldTraceFile(fileName)
 	fileName = thread.tryMockFile(fileName)
-	if shouldTrace {
-		fileName = thread.instrumentFile(fileName)
-	}
 	fileName = thread.tryRedirectFile(fileName)
-	shouldTrace = thread.replayingSession.ShouldTraceFile(fileName)
 	fileName = thread.tryMockFile(fileName)
-	if shouldTrace {
-		fileName = thread.instrumentFile(fileName)
-	}
 	countlog.Trace("event!sut.opening_file",
 		"threadID", thread.threadID,
-		"shouldTrace", shouldTrace,
 		"originalFile", originalFileName,
 		"finalFile", fileName)
 	return fileName
@@ -346,14 +337,6 @@ func (thread *Thread) tryRedirectFile(fileName string) string {
 				return redirectedFileName
 			}
 		}
-	}
-	return fileName
-}
-
-func (thread *Thread) instrumentFile(fileName string) string {
-	instrumentedFileName := trace.InstrumentFile(fileName)
-	if instrumentedFileName != "" {
-		return instrumentedFileName
 	}
 	return fileName
 }

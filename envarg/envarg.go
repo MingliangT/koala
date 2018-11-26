@@ -25,30 +25,24 @@ var gcGlobalStatusTimeout = 5 * time.Second
 func init() {
 	initInboundAddr()
 	initOutboundAddr()
-	initOutboundBypassPort()
 	initSutAddr()
+	initOutboundBypassPort()
+	initGcGlobalStatusTimeout()
+	initLog()
+
+	countlog.Trace("event!koala.envarg_init",
+		"logLevel", logLevel, "logFile", logFile, "logFormat", logFormat,
+		"inboundReadTimeout", inboundReadTimeout,
+		"outboundBypassPort", outboundBypassPort,
+		"isReplaying", IsReplaying(), "isRecording", IsRecording(), "isTracing", IsTracing())
+}
+
+func initLog() {
 	logFile = GetenvFromC("KOALA_LOG_FILE")
 	if logFile == "" {
 		logFile = "STDOUT"
 	}
-	initLogLevel()
-	logFormat = GetenvFromC("KOALA_LOG_FORMAT")
-	if logFormat == "" {
-		logFormat = "HumanReadableFormat"
-	}
-	initGcGlobalStatusTimeout()
-	countlog.Trace("event!koala.envarg_init",
-		"logLevel", logLevel,
-		"logFile", logFile,
-		"logFormat", logFormat,
-		"inboundReadTimeout", inboundReadTimeout,
-		"outboundBypassPort", outboundBypassPort,
-		"isReplaying", IsReplaying(),
-		"isRecording", IsRecording(),
-		"isTracing", IsTracing())
-}
 
-func initLogLevel() {
 	logLevelStr := strings.ToUpper(GetenvFromC("KOALA_LOG_LEVEL"))
 	switch logLevelStr {
 	case "TRACE":
@@ -63,6 +57,11 @@ func initLogLevel() {
 		logLevel = countlog.LevelError
 	case "FATAL":
 		logLevel = countlog.LevelFatal
+	}
+
+	logFormat = GetenvFromC("KOALA_LOG_FORMAT")
+	if logFormat == "" {
+		logFormat = "HumanReadableFormat"
 	}
 }
 
