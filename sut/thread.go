@@ -192,8 +192,8 @@ func (thread *Thread) OnRecv(socketFD SocketFD, span []byte, flags RecvFlags) []
 		thread.replayingSession = replayingSession
 		countlog.Trace("event!sut.received_replaying_session",
 			"threadID", thread.threadID,
-			"replayingSession", thread.replayingSession,
-			"addr", sock.addr)
+			"replayingSessionId", thread.replayingSession.SessionId,
+			"addr", &sock.addr)
 	}
 	return span
 }
@@ -323,6 +323,7 @@ func (thread *Thread) OnOpeningFile(fileName string, flags int) string {
 	fileName = thread.tryMockFile(fileName)
 	countlog.Trace("event!sut.opening_file",
 		"threadID", thread.threadID,
+		"replayingSessionId", thread.replayingSession.SessionId,
 		"originalFile", originalFileName,
 		"finalFile", fileName)
 	return fileName
