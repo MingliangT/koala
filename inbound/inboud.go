@@ -43,13 +43,13 @@ func handleInbound(respWriter http.ResponseWriter, req *http.Request) {
 				"stacktrace", countlog.ProvideStacktrace)
 		}
 	}()
-	countlog.Debug("event!inbound.received_request", "remoteAddr", req.RemoteAddr)
 	reqBody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		countlog.Error("event!inbound.failed to read request", "err", err)
 		return
 	}
 	defer req.Body.Close()
+	countlog.Debug("event!inbound.received_request", "remoteAddr", req.RemoteAddr, "bodySize", len(reqBody))
 	replayingSession := replaying.NewReplayingSession()
 	err = json.Unmarshal(reqBody, replayingSession)
 	if err != nil {
