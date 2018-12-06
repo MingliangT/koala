@@ -21,12 +21,14 @@ var logLevel = countlog.LevelDebug
 var logFormat string
 var outboundBypassPorts = make(map[int]bool, 10)
 var gcGlobalStatusTimeout = 5 * time.Second
+var replayingMatchStrategy string
 
 func init() {
 	initInboundAddr()
 	initOutboundAddr()
 	initSutAddr()
 	initOutboundBypassPort()
+	initReplayingMatchStrategy()
 	initGcGlobalStatusTimeout()
 	initLog()
 
@@ -34,6 +36,7 @@ func init() {
 		"logLevel", logLevel, "logFile", logFile, "logFormat", logFormat,
 		"inboundReadTimeout", inboundReadTimeout,
 		"outboundBypassPorts", outboundBypassPorts,
+		"replayingMatchStrategy", replayingMatchStrategy,
 		"isReplaying", IsReplaying(), "isRecording", IsRecording(), "isTracing", IsTracing())
 }
 
@@ -117,7 +120,7 @@ func initOutboundBypassPort() {
 		return
 	}
 	for _, port := range strings.Split(portStr, ",") {
-		if portInt, err := strconv.Atoi(port); err == nil{
+		if portInt, err := strconv.Atoi(port); err == nil {
 			outboundBypassPorts[portInt] = true
 		}
 	}
@@ -129,6 +132,14 @@ func initGcGlobalStatusTimeout() {
 		if timeout, err := time.ParseDuration(timeoutStr); err == nil {
 			gcGlobalStatusTimeout = timeout
 		}
+	}
+}
+
+func initReplayingMatchStrategy() {
+	replayingMatchStrategy = ""
+	strategyStr := GetenvFromC("KOALA_REPLAYING_MATCH_STRATEGY")
+	if strategyStr != "" {
+		replayingMatchStrategy = strings.ToLower(strategyStr)
 	}
 }
 
@@ -181,6 +192,10 @@ func IsOutboundBypassPort(portInt int) bool {
 
 func GcGlobalStatusTimeout() time.Duration {
 	return gcGlobalStatusTimeout
+}
+
+func ReplayingMatchStrategy() string {
+	return replayingMatchStrategy
 }
 
 // GetenvFromC to make getenv work in php-fpm child process
