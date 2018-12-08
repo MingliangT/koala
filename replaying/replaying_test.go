@@ -215,7 +215,7 @@ func Test_cos_TFIDF(t *testing.T) {
 	fmt.Printf("Online record CallOutbound count: %d\n", recordOutboundsCount)
 
 	calledCount := 0
-	simMatchCount := 0
+	cosMatchedCount := 0
 	var scores [][]IdxScore
 	calleds := get(replayedSession, "Actions").([]interface{})
 	for _, replayedCall := range calleds {
@@ -249,10 +249,10 @@ func Test_cos_TFIDF(t *testing.T) {
 		fmt.Printf("△: %f, Scores: %+v\n", score[0].Score-score[1].Score, score[0:3])
 
 		if maxScoreIdx == matchedIdx {
-			simMatchCount += 1
+			cosMatchedCount += 1
 		} else {
 			if maxScoreIdx != -1 && request == recordOutbounds[maxScoreIdx] {
-				simMatchCount += 1
+				cosMatchedCount += 1
 			} else {
 				//// not match
 				//fmt.Println("Not Matched Req:\n", request)
@@ -272,7 +272,8 @@ func Test_cos_TFIDF(t *testing.T) {
 			}
 		}
 	}
-	fmt.Printf("called %d, sim match count %d", calledCount, simMatchCount)
+	fmt.Printf("called %d, sim match count %d", calledCount, cosMatchedCount)
+	should.Equal(calledCount, cosMatchedCount)
 }
 
 func Test_cos_TFIDF_limit_vector_size(t *testing.T) {
@@ -301,7 +302,7 @@ func Test_cos_TFIDF_limit_vector_size(t *testing.T) {
 	fmt.Printf("Online record CallOutbound count: %d\n", recordOutboundsCount)
 
 	calledCount := 0
-	simMatchCount := 0
+	cosMatchedCount := 0
 	var scores [][]IdxScore
 	calleds := get(replayedSession, "Actions").([]interface{})
 	for _, replayedCall := range calleds {
@@ -335,10 +336,10 @@ func Test_cos_TFIDF_limit_vector_size(t *testing.T) {
 		fmt.Printf("△: %f, Scores: %+v\n", 100*(score[0].Score-score[1].Score), score[0:3])
 
 		if maxScoreIdx == matchedIdx {
-			simMatchCount += 1
+			cosMatchedCount += 1
 		} else {
 			if maxScoreIdx != -1 && request == recordOutbounds[maxScoreIdx] {
-				simMatchCount += 1
+				cosMatchedCount += 1
 			} else {
 				//// not match
 				//fmt.Println("Not Matched Req:\n", request)
@@ -358,7 +359,8 @@ func Test_cos_TFIDF_limit_vector_size(t *testing.T) {
 			}
 		}
 	}
-	fmt.Printf("called %d, sim match count %d", calledCount, simMatchCount)
+	fmt.Printf("called %d, sim match count %d", calledCount, cosMatchedCount)
+	should.Equal(calledCount, cosMatchedCount)
 }
 
 func Test_bad_case3(t *testing.T) {
