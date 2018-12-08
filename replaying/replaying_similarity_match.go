@@ -25,7 +25,7 @@ func (replayingSession *ReplayingSession) similarityMatch(
 	scores := make([]float64, len(replayingSession.CallOutbounds))
 
 	lexer := &similarity.Lexer{}
-	reqVector := strSlice2Map(lexer.SegBytes(request))
+	reqVector := strSlice2Map(lexer.Scan(request))
 	outboundVectors := getReplayingSessionVectors(replayingSession)
 
 	for i, _ := range replayingSession.CallOutbounds {
@@ -80,7 +80,7 @@ func getReplayingSessionVectors(replayingSession *ReplayingSession) []map[string
 		lexer := similarity.Lexer{}
 		vectors = make([]map[string]float64, len(replayingSession.CallOutbounds))
 		for i, callOutbound := range replayingSession.CallOutbounds {
-			vectors[i] = strSlice2Map(lexer.SegBytes(callOutbound.Request))
+			vectors[i] = strSlice2Map(lexer.Scan(callOutbound.Request))
 		}
 		globalVectors[replayingSession.SessionId] = vectors
 		countlog.Trace("event!replaying.build_min_hash", "spendTime", time.Since(begin))

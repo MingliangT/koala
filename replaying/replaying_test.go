@@ -17,6 +17,22 @@ import (
 	"github.com/wilcosheh/tfidf"
 )
 
+// Lexer adapter for tfidf
+type LexerAdapter struct {
+	similarity.Lexer
+}
+
+func NewLexerAdapter() *LexerAdapter {
+	return &LexerAdapter{}
+}
+
+func (s *LexerAdapter) Seg(text string) []string {
+	return s.Scan([]byte(text))
+}
+
+func (s *LexerAdapter) Free() {
+}
+
 type IdxScore struct {
 	Index int
 	Score float64
@@ -96,14 +112,14 @@ func Test_cos_without_TFIDF(t *testing.T) {
 
 	begin := time.Now()
 
-	lexer := similarity.Lexer{}
+	lexer := NewLexerAdapter()
 	recordOutboundsCount := len(replayingSession.CallOutbounds)
 	rawCallOutbounds := make(map[int]string)
 	recordOutbounds := make(map[int][]string, recordOutboundsCount)
 	for _, outbound := range replayingSession.CallOutbounds {
 		req := string(outbound.Request)
 		rawCallOutbounds[outbound.ActionIndex] = req
-		recordOutbounds[outbound.ActionIndex] = lexer.Seg(req)
+		recordOutbounds[outbound.ActionIndex] = lexer.Scan([]byte(req))
 	}
 	fmt.Printf("Online record CallOutbound count: %d\n", recordOutboundsCount)
 
@@ -188,7 +204,7 @@ func Test_cos_TFIDF(t *testing.T) {
 	err = json.Unmarshal(replayed, &replayedSession)
 	should.Nil(err)
 
-	f := tfidf.NewTokenizer(&similarity.Lexer{})
+	f := tfidf.NewTokenizer(&LexerAdapter{})
 	recordOutboundsCount := len(replayingSession.CallOutbounds)
 	recordOutbounds := make(map[int]string, recordOutboundsCount)
 	for _, outbound := range replayingSession.CallOutbounds {
@@ -274,7 +290,7 @@ func Test_cos_TFIDF_limit_vector_size(t *testing.T) {
 	err = json.Unmarshal(replayed, &replayedSession)
 	should.Nil(err)
 
-	f := tfidf.NewTokenizer(&similarity.Lexer{})
+	f := tfidf.NewTokenizer(&LexerAdapter{})
 	recordOutboundsCount := len(replayingSession.CallOutbounds)
 	recordOutbounds := make(map[int]string, recordOutboundsCount)
 	for _, outbound := range replayingSession.CallOutbounds {

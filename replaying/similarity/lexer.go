@@ -8,11 +8,7 @@ import (
 type Lexer struct {
 }
 
-func (s *Lexer) Seg(text string) []string {
-	return s.SegBytes([]byte(text))
-}
-
-func (s *Lexer) SegBytes(text []byte) []string {
+func (s *Lexer) Scan(text []byte) []string {
 	var chunks []string
 	offset := 0
 
@@ -34,9 +30,6 @@ func (s *Lexer) SegBytes(text []byte) []string {
 	}
 
 	return chunks
-}
-
-func (s *Lexer) Free() {
 }
 
 func findReadableChunk(key []byte) (int, int) {
